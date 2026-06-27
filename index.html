@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bucket hours dashboard</title>
+<style>
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 480px; margin: 24px auto; padding: 0 16px; color: #1a1a1a; background: #fafaf8; }
+  h1 { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+  .subtitle { color: #6b6a64; font-size: 13px; margin-bottom: 20px; }
+  input[type=password] { width: 100%; padding: 10px 12px; font-size: 14px; margin-bottom: 8px; box-sizing: border-box; border: 1px solid #d8d6cd; border-radius: 8px; }
+  button { padding: 8px 14px; font-size: 13px; cursor: pointer; border: 1px solid #1a1a1a; border-radius: 8px; background: #1a1a1a; color: white; }
+  button.secondary { background: white; color: #1a1a1a; }
+  .key-row { display: flex; gap: 8px; margin-bottom: 20px; align-items: center; }
+  .key-status { font-size: 13px; color: #6b6a64; }
+  .bucket-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
+  .bucket-card { background: white; border: 1px solid #e5e3d8; border-radius: 12px; padding: 12px; }
+  .bucket-name { font-size: 12px; color: #6b6a64; margin-bottom: 8px; font-weight: 500; }
+  .bucket-stat .label { font-size: 11px; color: #8a8980; }
+  .bucket-stat .value { font-size: 18px; font-weight: 500; }
+  .freetime-card { background: white; border: 1px solid #e5e3d8; border-radius: 12px; padding: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  .freetime-card .value { font-size: 20px; font-weight: 500; }
+  .placeholder-note { font-size: 12px; color: #b5604f; background: #fbeae6; border-radius: 8px; padding: 10px 12px; margin-top: 16px; }
+</style>
+</head>
+<body>
+  <h1>Bucket hours dashboard</h1>
+  <p class="subtitle">Work, personal finance, and RWTA hours for this week.</p>
+
+  <div id="keyEntry">
+    <div class="key-row">
+      <input type="password" id="apiKey" placeholder="Paste your Motion API key">
+      <button onclick="saveKey()">Save</button>
+    </div>
+  </div>
+  <div id="keySaved" style="display:none;" class="key-row">
+    <span class="key-status">Motion key saved on this device.</span>
+    <button class="secondary" onclick="clearKey()">Clear</button>
+  </div>
+
+  <div class="bucket-grid">
+    <div class="bucket-card">
+      <div class="bucket-name">Work</div>
+      <div class="bucket-stat"><div class="label">Unallocated</div><div class="value">2.0 hrs</div></div>
+    </div>
+    <div class="bucket-card">
+      <div class="bucket-name">Personal finance</div>
+      <div class="bucket-stat"><div class="label">Unallocated</div><div class="value">12.0 hrs</div></div>
+    </div>
+    <div class="bucket-card">
+      <div class="bucket-name">RWTA</div>
+      <div class="bucket-stat"><div class="label">Unallocated</div><div class="value">15.5 hrs</div></div>
+    </div>
+  </div>
+
+  <div class="freetime-card">
+    <span style="font-size:13px; color:#6b6a64;">Free time this week</span>
+    <span class="value">4.8 hrs</span>
+  </div>
+
+  <p class="placeholder-note">This is a placeholder with fake numbers, just to test hosting and key storage. Real Motion data isn't wired up yet.</p>
+
+<script>
+function saveKey() {
+  const key = document.getElementById('apiKey').value.trim();
+  if (!key) return;
+  localStorage.setItem('motionApiKey', key);
+  document.getElementById('keyEntry').style.display = 'none';
+  document.getElementById('keySaved').style.display = 'flex';
+}
+function clearKey() {
+  localStorage.removeItem('motionApiKey');
+  document.getElementById('apiKey').value = '';
+  document.getElementById('keyEntry').style.display = 'block';
+  document.getElementById('keySaved').style.display = 'none';
+}
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('motionApiKey');
+  if (saved) {
+    document.getElementById('keyEntry').style.display = 'none';
+    document.getElementById('keySaved').style.display = 'flex';
+  }
+});
+</script>
+</body>
+</html>
