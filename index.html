@@ -14,7 +14,6 @@
   button { padding: 9px 14px; font-size: 13px; cursor: pointer; border: 1px solid #1a1a1a; border-radius: 8px; background: #1a1a1a; color: white; }
   button.secondary { background: white; color: #1a1a1a; border: 1px solid #d8d6cd; }
   button.full { width: 100%; }
-  button.icon-btn { background: transparent; border: none; color: #b5604f; padding: 4px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
   .key-row { display: flex; gap: 8px; margin-bottom: 4px; align-items: center; }
   .key-status { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #8a8980; margin-bottom: 20px; }
   .key-error { font-size: 12px; color: #b5604f; margin-top: 6px; }
@@ -31,11 +30,8 @@
   .freetime-card .label { font-size: 13px; color: #6b6a64; }
   .freetime-card .value { font-size: 20px; font-weight: 500; }
   .form-card { background: white; border: 1px solid #e5e3d8; border-radius: 12px; padding: 14px; }
-  .form-row { margin-bottom: 10px; }
-  .form-row label { display: block; font-size: 12px; color: #6b6a64; margin-bottom: 4px; }
-  .form-row-split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
   .task-cards { display: flex; flex-direction: column; gap: 10px; }
-  .task-card { background: var(--surface-1, #f5f4ee); border: 1px solid #e5e3d8; border-radius: 10px; padding: 10px; position: relative; }
+  .task-card { background: #f5f4ee; border: 1px solid #e5e3d8; border-radius: 10px; padding: 10px; position: relative; }
   .task-card .name-row { display: flex; gap: 6px; margin-bottom: 8px; }
   .task-card .name-row input { font-size: 14px; font-weight: 500; }
   .task-card .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -47,7 +43,6 @@
   .sync-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid #e5e3d8; border-radius: 12px; padding: 12px 14px; }
   .sync-row .label { font-size: 13px; }
   .sync-row .timestamp { font-size: 11px; color: #8a8980; margin-top: 2px; }
-  .placeholder-note { font-size: 12px; color: #b5604f; background: #fbeae6; border-radius: 8px; padding: 10px 12px; }
   .task-list { display: flex; flex-direction: column; gap: 6px; }
   .task-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid #e5e3d8; border-radius: 8px; padding: 8px 12px; font-size: 13px; }
   .task-row .meta { font-size: 11px; color: #8a8980; }
@@ -56,6 +51,13 @@
   .badge.work { background: #e6f1fb; color: #0c447c; }
   .badge.pf { background: #e1f5ee; color: #085041; }
   .badge.none { background: #f1efe8; color: #444441; }
+  .sync-result { display: flex; gap: 8px; font-size: 12px; align-items: baseline; padding: 3px 0; border-top: 1px solid #f0eee5; }
+  .sync-result:first-child { border-top: none; }
+  .sync-result .sr-icon { width: 12px; flex-shrink: 0; font-style: normal; }
+  .sync-result .sr-bucket { font-weight: 500; min-width: 36px; flex-shrink: 0; }
+  .sr-success { color: #085041; }
+  .sr-blocked { color: #b5604f; }
+  .sr-muted { color: #8a8980; }
 </style>
 </head>
 <body>
@@ -79,21 +81,21 @@
     <div class="bucket-grid">
       <div class="bucket-card">
         <div class="bucket-name">Work</div>
-        <div class="bucket-stat"><div class="label">Unallocated</div><div class="value">1.5 hrs</div></div>
-        <div class="bucket-stat" style="margin-top:8px;"><div class="label">Worked</div><div class="value small">8.0 of 10 hrs</div></div>
-        <div class="progress-track"><div class="progress-fill" style="width:80%; background:#0c447c;"></div></div>
+        <div class="bucket-stat"><div class="label">Unallocated</div><div class="value" id="work-unallocated">&#8212;</div></div>
+        <div class="bucket-stat" style="margin-top:8px;"><div class="label">Worked</div><div class="value small" id="work-worked">&#8212; of &#8212;</div></div>
+        <div class="progress-track"><div class="progress-fill" id="work-bar" style="width:0%; background:#0c447c;"></div></div>
       </div>
       <div class="bucket-card">
         <div class="bucket-name">Personal finance</div>
-        <div class="bucket-stat"><div class="label">Unallocated</div><div class="value">9.5 hrs</div></div>
-        <div class="bucket-stat" style="margin-top:8px;"><div class="label">Worked</div><div class="value small">3.0 of 15 hrs</div></div>
-        <div class="progress-track"><div class="progress-fill" style="width:20%; background:#085041;"></div></div>
+        <div class="bucket-stat"><div class="label">Unallocated</div><div class="value" id="pf-unallocated">&#8212;</div></div>
+        <div class="bucket-stat" style="margin-top:8px;"><div class="label">Worked</div><div class="value small" id="pf-worked">&#8212; of &#8212;</div></div>
+        <div class="progress-track"><div class="progress-fill" id="pf-bar" style="width:0%; background:#085041;"></div></div>
       </div>
       <div class="bucket-card">
         <div class="bucket-name">RWTA</div>
-        <div class="bucket-stat"><div class="label">Unallocated</div><div class="value">13.25 hrs</div></div>
-        <div class="bucket-stat" style="margin-top:8px;"><div class="label">Worked</div><div class="value small">9.5 of 25 hrs</div></div>
-        <div class="progress-track"><div class="progress-fill" style="width:38%; background:#3c3489;"></div></div>
+        <div class="bucket-stat"><div class="label">Unallocated</div><div class="value" id="rwta-unallocated">&#8212;</div></div>
+        <div class="bucket-stat" style="margin-top:8px;"><div class="label">Worked</div><div class="value small" id="rwta-worked">&#8212; of &#8212;</div></div>
+        <div class="progress-track"><div class="progress-fill" id="rwta-bar" style="width:0%; background:#3c3489;"></div></div>
       </div>
     </div>
   </div>
@@ -101,15 +103,15 @@
   <div class="section" style="display:flex; flex-direction:column; gap:10px;">
     <div class="freetime-card">
       <span class="label">Total worked this week</span>
-      <span class="value">20.5 hrs</span>
+      <span class="value" id="total-worked">&#8212;</span>
     </div>
     <div class="freetime-card">
       <span class="label">Total unallocated</span>
-      <span class="value">24.25 hrs</span>
+      <span class="value" id="total-unallocated">&#8212;</span>
     </div>
     <div class="freetime-card">
       <span class="label">Free time this week</span>
-      <span class="value">4.8 hrs</span>
+      <span class="value">&#8212; <span style="font-size:12px; color:#8a8980;">(coming soon)</span></span>
     </div>
   </div>
 
@@ -121,7 +123,6 @@
 send invoice, 10, Work, Low" style="width:100%; padding:9px 10px; font-size:13px; box-sizing:border-box; border:1px solid #d8d6cd; border-radius:8px; font-family: ui-monospace, monospace; resize:vertical;"></textarea>
       <button class="full" style="margin-top:10px;" onclick="parseToRows()">Parse into rows</button>
       <div id="parseError" style="display:none; font-size:12px; color:#b5604f; margin-top:8px;"></div>
-
       <div id="editRows" style="display:none; margin-top:16px;">
         <div class="task-cards" id="bulkTable"></div>
         <button class="full" style="margin-top:10px;" onclick="submitRows()">Add all to Motion</button>
@@ -131,16 +132,7 @@ send invoice, 10, Work, Low" style="width:100%; padding:9px 10px; font-size:13px
 
   <div class="section">
     <h2>Added today</h2>
-    <div class="task-list" id="taskList">
-      <div class="task-row">
-        <span>lucas f/up email</span>
-        <span><span class="badge rwta">RWTA</span> <span class="meta">30 min</span></span>
-      </div>
-      <div class="task-row">
-        <span>send invoice</span>
-        <span><span class="badge work">Work</span> <span class="meta">10 min</span></span>
-      </div>
-    </div>
+    <div class="task-list" id="taskList"></div>
   </div>
 
   <div class="section">
@@ -148,18 +140,29 @@ send invoice, 10, Work, Low" style="width:100%; padding:9px 10px; font-size:13px
     <div class="sync-row">
       <div>
         <div class="label">Pull this week's grouped hours</div>
-        <div class="timestamp">Last synced: today at 9:14 AM</div>
+        <div class="timestamp" id="sync-timestamp">Last synced: never</div>
       </div>
-      <button class="secondary" onclick="syncMock()">Sync now</button>
+      <button class="secondary" id="sync-btn" onclick="syncNow()">Sync now</button>
     </div>
+    <div id="sync-results" style="display:none; flex-direction:column; margin-top:10px; background:white; border:1px solid #e5e3d8; border-radius:10px; padding:10px 12px;"></div>
   </div>
 
-  <p class="placeholder-note">This is a visual mockup with fake numbers. No live Motion or Zapier calls are wired up yet.</p>
-
 <script>
-// --- Proxy helper ---
-// All Motion API calls go through /.netlify/functions/motion to avoid CORS.
-// The API key is read from localStorage and sent per-request (never embedded in source).
+// ─── CONFIG (fill in after Zapier + destination sheet are set up) ─────────────
+const CONFIG = {
+  workspaceId:        'kwsI4zmTzceomRsdyXUhZ',
+  zapierWebhookUrl:   '',   // Zapier Catch Hook URL
+  destinationSheetId: '',   // single-tab Google Sheet ID
+};
+
+const BUCKET_INFO = [
+  { key: 'work', label: 'Work', taskName: 'Work Hours', motionLabel: 'Work' },
+  { key: 'pf',   label: 'PF',   taskName: 'PF Hours',   motionLabel: 'PF'   },
+  { key: 'rwta', label: 'RWTA', taskName: 'RWTA Hours', motionLabel: 'RWTA' },
+];
+const ACTIVE_STATUSES = new Set(['Todo', 'In Progress', 'Unstarted']);
+
+// ─── Motion proxy ─────────────────────────────────────────────────────────────
 async function motionProxy(method, path, body) {
   const apiKey = localStorage.getItem('motionApiKey');
   if (!apiKey) throw new Error('No Motion API key saved');
@@ -173,27 +176,26 @@ async function motionProxy(method, path, body) {
   return data;
 }
 
-// --- API key entry ---
+// ─── API key entry ────────────────────────────────────────────────────────────
 async function saveKey() {
-  const key = document.getElementById('apiKey').value.trim();
+  const key   = document.getElementById('apiKey').value.trim();
   if (!key) return;
   const errEl = document.getElementById('keyError');
-  const btn = document.getElementById('saveBtn');
+  const btn   = document.getElementById('saveBtn');
   errEl.style.display = 'none';
   btn.disabled = true;
-  btn.textContent = 'Checking…';
-
-  // Verify the key works before persisting it
+  btn.textContent = 'Checking...';
   try {
     localStorage.setItem('motionApiKey', key);
     const me = await motionProxy('GET', '/users/me');
-    document.getElementById('keyLabel').textContent = `Connected as ${me.name} · Motion key saved on this device.`;
+    document.getElementById('keyLabel').textContent = `Connected as ${me.name} - Motion key saved on this device.`;
     document.getElementById('keyEntry').style.display = 'none';
     document.getElementById('keySaved').style.display = 'flex';
+    loadBucketData();
   } catch (err) {
     localStorage.removeItem('motionApiKey');
     errEl.textContent = err.status === 401
-      ? 'Key rejected by Motion (401) — double-check and try again.'
+      ? 'Key rejected by Motion (401) - double-check and try again.'
       : `Could not verify key: ${err.message}`;
     errEl.style.display = 'block';
   } finally {
@@ -210,41 +212,125 @@ function clearKey() {
   document.getElementById('keyEntry').style.display = 'block';
   document.getElementById('keySaved').style.display = 'none';
 }
-function getThisSunday() {
-  const d = new Date();
-  const day = d.getDay();
-  const diff = day === 0 ? 0 : 7 - day;
-  const sunday = new Date(d);
-  sunday.setDate(d.getDate() + diff);
-  return sunday.toISOString().slice(0, 10);
+
+// ─── Date / week helpers ──────────────────────────────────────────────────────
+function getThisWeekWindow() {
+  const now = new Date();
+  const day = now.getDay();
+  const diffToMon = day === 0 ? -6 : 1 - day;
+  const mon = new Date(now);
+  mon.setDate(now.getDate() + diffToMon);
+  mon.setHours(0, 0, 0, 0);
+  const sun = new Date(mon);
+  sun.setDate(mon.getDate() + 6);
+  sun.setHours(23, 59, 59, 999);
+  return { mon, sun };
+}
+function isThisWeek(dueDateStr) {
+  if (!dueDateStr) return false;
+  const { mon, sun } = getThisWeekWindow();
+  const d = new Date(dueDateStr);
+  return d >= mon && d <= sun;
 }
 function getToday() {
-  return new Date().toISOString().slice(0, 10);
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
 }
+function getThisSunday() {
+  const d = new Date();
+  const diff = d.getDay() === 0 ? 0 : 7 - d.getDay();
+  const sun = new Date(d);
+  sun.setDate(d.getDate() + diff);
+  return `${sun.getFullYear()}-${String(sun.getMonth()+1).padStart(2,'0')}-${String(sun.getDate()).padStart(2,'0')}`;
+}
+function fmtHrs(minutes) {
+  const h = minutes / 60;
+  return (Number.isInteger(h) ? h : +h.toFixed(2)) + ' hrs';
+}
+function isActive(task) { return ACTIVE_STATUSES.has(task.status?.name); }
+
+// ─── Motion task fetching ─────────────────────────────────────────────────────
+async function fetchAllTasks() {
+  const tasks = [];
+  let cursor;
+  do {
+    const qs = new URLSearchParams({ workspaceId: CONFIG.workspaceId, includeAllStatuses: 'true' });
+    if (cursor) qs.set('cursor', cursor);
+    const page = await motionProxy('GET', `/tasks?${qs}`);
+    tasks.push(...(page.tasks ?? []));
+    cursor = page.meta?.nextCursor;
+  } while (cursor);
+  return tasks;
+}
+
+function getThisWeekBucketTasks(allTasks) {
+  const result = {};
+  for (const { key, taskName } of BUCKET_INFO) {
+    result[key] = allTasks.find(t => t.name === taskName && isActive(t) && isThisWeek(t.dueDate)) ?? null;
+  }
+  return result;
+}
+
+function sumNamedTaskMins(bucketKey, allTasks) {
+  const info = BUCKET_INFO.find(b => b.key === bucketKey);
+  return allTasks
+    .filter(t =>
+      t.name !== info.taskName &&
+      isActive(t) &&
+      isThisWeek(t.dueDate) &&
+      t.labels?.some(l => (typeof l === 'string' ? l : l.name) === info.motionLabel)
+    )
+    .reduce((sum, t) => sum + (t.duration || 0), 0);
+}
+
+// ─── Bucket cards ─────────────────────────────────────────────────────────────
+async function loadBucketData() {
+  try {
+    const allTasks    = await fetchAllTasks();
+    const bucketTasks = getThisWeekBucketTasks(allTasks);
+    let totalUnallocated = 0;
+    for (const { key } of BUCKET_INFO) {
+      const task = bucketTasks[key];
+      const el   = document.getElementById(`${key}-unallocated`);
+      if (task) {
+        el.textContent = fmtHrs(task.duration);
+        totalUnallocated += task.duration;
+      } else {
+        el.textContent = 'not found';
+      }
+    }
+    document.getElementById('total-unallocated').textContent = fmtHrs(totalUnallocated);
+    // Worked + progress bars remain placeholder until Hours Planner sync is wired (step 5)
+  } catch (err) {
+    console.error('loadBucketData failed:', err);
+  }
+}
+
+// ─── Add tasks (parse UI + submit stub) ──────────────────────────────────────
 function parseToRows() {
-  const raw = document.getElementById('bulkPaste').value;
+  const raw     = document.getElementById('bulkPaste').value;
   const errorEl = document.getElementById('parseError');
   errorEl.style.display = 'none';
   const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
   if (lines.length === 0) return;
 
-  const table = document.getElementById('bulkTable');
+  const table     = document.getElementById('bulkTable');
   table.innerHTML = '';
-  const skipped = [];
-  const todayStr = getToday();
+  const skipped   = [];
+  const todayStr  = getToday();
   const sundayStr = getThisSunday();
 
   lines.forEach(line => {
     const parts = line.split(',').map(p => p.trim());
     if (parts.length < 3) { skipped.push(line); return; }
     const [name, minutes, bucket, priority] = parts;
-    const bucketLower = bucket.toLowerCase();
+    const bl = bucket.toLowerCase();
     let bucketNorm;
-    if (bucketLower.startsWith('work')) bucketNorm = 'Work';
-    else if (bucketLower.startsWith('pf') || bucketLower.includes('personal finance')) bucketNorm = 'PF';
-    else if (bucketLower.startsWith('rwta')) bucketNorm = 'RWTA';
-    else if (bucketLower.startsWith('none') || bucketLower === 'personal' || bucketLower === '') bucketNorm = 'None';
-    else { skipped.push(line + '  (unrecognized bucket "' + bucket + '" \u2014 use Work, PF, RWTA, or None)'); return; }
+    if (bl.startsWith('work')) bucketNorm = 'Work';
+    else if (bl.startsWith('pf') || bl.includes('personal finance')) bucketNorm = 'PF';
+    else if (bl.startsWith('rwta')) bucketNorm = 'RWTA';
+    else if (bl.startsWith('none') || bl === 'personal' || bl === '') bucketNorm = 'None';
+    else { skipped.push(line + '  (unrecognized bucket "' + bucket + '" - use Work, PF, RWTA, or None)'); return; }
     const priorityNorm = priority ? priority.trim() : 'Medium';
 
     const card = document.createElement('div');
@@ -257,16 +343,16 @@ function parseToRows() {
       '<div class="field-grid three" style="margin-bottom:8px;">' +
         '<div class="field"><label>Minutes</label><input type="number" value="' + (minutes || 30) + '"></div>' +
         '<div class="field"><label>Bucket</label><select>' +
-          '<option' + (bucketNorm === 'Work' ? ' selected' : '') + '>Work</option>' +
-          '<option' + (bucketNorm === 'RWTA' ? ' selected' : '') + '>RWTA</option>' +
-          '<option' + (bucketNorm === 'PF' ? ' selected' : '') + '>PF</option>' +
-          '<option' + (bucketNorm === 'None' ? ' selected' : '') + '>None</option>' +
+          '<option' + (bucketNorm==='Work'?' selected':'') + '>Work</option>' +
+          '<option' + (bucketNorm==='RWTA'?' selected':'') + '>RWTA</option>' +
+          '<option' + (bucketNorm==='PF'?' selected':'') + '>PF</option>' +
+          '<option' + (bucketNorm==='None'?' selected':'') + '>None</option>' +
         '</select></div>' +
         '<div class="field"><label>Priority</label><select>' +
-          '<option' + (priorityNorm === 'Low' ? ' selected' : '') + '>Low</option>' +
-          '<option' + (priorityNorm === 'Medium' ? ' selected' : '') + '>Medium</option>' +
-          '<option' + (priorityNorm === 'High' ? ' selected' : '') + '>High</option>' +
-          '<option' + (priorityNorm === 'ASAP' ? ' selected' : '') + '>ASAP</option>' +
+          '<option' + (priorityNorm==='Low'?' selected':'') + '>Low</option>' +
+          '<option' + (priorityNorm==='Medium'?' selected':'') + '>Medium</option>' +
+          '<option' + (priorityNorm==='High'?' selected':'') + '>High</option>' +
+          '<option' + (priorityNorm==='ASAP'?' selected':'') + '>ASAP</option>' +
         '</select></div>' +
       '</div>' +
       '<div class="field-grid three">' +
@@ -284,45 +370,234 @@ function parseToRows() {
 
   if (skipped.length > 0) {
     errorEl.style.display = 'block';
-    errorEl.textContent = 'Skipped ' + skipped.length + ' line(s) missing required fields (need at least name, minutes, bucket): ' + skipped.join(' / ');
+    errorEl.textContent = 'Skipped ' + skipped.length + ' line(s): ' + skipped.join(' / ');
   }
-  if (table.children.length > 0) {
-    document.getElementById('editRows').style.display = 'block';
-  }
+  if (table.children.length > 0) document.getElementById('editRows').style.display = 'block';
 }
+
 function submitRows() {
+  // TODO: wire to real Motion POST + decrement mechanic (handoff step 2)
   const cards = document.querySelectorAll('#bulkTable .task-card');
-  const list = document.getElementById('taskList');
+  const list  = document.getElementById('taskList');
   cards.forEach(card => {
-    const name = card.querySelector('.name-row input').value.trim();
-    const fields = card.querySelectorAll('.field-grid.three')[0];
+    const name    = card.querySelector('.name-row input').value.trim();
+    const fields  = card.querySelectorAll('.field-grid.three')[0];
     const minutes = fields.querySelectorAll('input')[0].value;
-    const bucket = fields.querySelectorAll('select')[0].value;
+    const bucket  = fields.querySelectorAll('select')[0].value;
     if (!name) return;
-    const badgeClass = bucket === 'Work' ? 'work' : bucket === 'PF' ? 'pf' : bucket === 'None' ? 'none' : 'rwta';
-    const taskRow = document.createElement('div');
-    taskRow.className = 'task-row';
-    taskRow.innerHTML = '<span>' + name + '</span><span><span class="badge ' + badgeClass + '">' + bucket + '</span> <span class="meta">' + minutes + ' min</span></span>';
-    list.prepend(taskRow);
+    const badgeClass = bucket==='Work'?'work': bucket==='PF'?'pf': bucket==='None'?'none':'rwta';
+    const row = document.createElement('div');
+    row.className = 'task-row';
+    row.innerHTML = '<span>' + name + '</span><span><span class="badge ' + badgeClass + '">' + bucket + '</span> <span class="meta">' + minutes + ' min</span></span>';
+    list.prepend(row);
   });
   document.getElementById('bulkPaste').value = '';
   document.getElementById('bulkTable').innerHTML = '';
   document.getElementById('editRows').style.display = 'none';
 }
-function syncMock() {
-  alert('This would trigger the Zapier sync once wired up.');
+
+// ─── Sync ─────────────────────────────────────────────────────────────────────
+function parseCSV(text) {
+  const rows = [];
+  for (const line of text.split('\n')) {
+    const fields = [];
+    let cur = '', inQ = false;
+    for (const ch of line) {
+      if (ch === '"') { inQ = !inQ; }
+      else if (ch === ',' && !inQ) { fields.push(cur.trim()); cur = ''; }
+      else { cur += ch; }
+    }
+    fields.push(cur.trim());
+    rows.push(fields);
+  }
+  return rows;
 }
+
+// Destination sheet layout (written by the Zap):
+//   Row 0: work_start_hours, pf_start_hours, rwta_start_hours
+//   Row 1: <values e.g. 10, 15, 25>
+//   Row 2: date, start_time, end_time, duration_minutes, event, calendar, grouping
+//   Row 3+: event rows
+function parseDestinationSheet(csvText) {
+  const rows = parseCSV(csvText);
+  const startHours = {
+    work: parseFloat(rows[1]?.[0]) || 0,
+    pf:   parseFloat(rows[1]?.[1]) || 0,
+    rwta: parseFloat(rows[1]?.[2]) || 0,
+  };
+  const eventHeaders = rows[2] || [];
+  const events = rows.slice(3)
+    .filter(r => r.some(c => c))
+    .map(r => {
+      const obj = {};
+      eventHeaders.forEach((h, i) => { obj[h] = r[i] || ''; });
+      return obj;
+    });
+  return { startHours, events };
+}
+
+function setSyncResults(outcomes) {
+  const el = document.getElementById('sync-results');
+  el.style.display = 'flex';
+  el.innerHTML = outcomes.map(o => {
+    const cls  = o.status === 'blocked'  ? 'sr-blocked' :
+                 o.status === 'nochange' || o.status === 'baseline' ? 'sr-muted' : 'sr-success';
+    const icon = o.status === 'blocked'  ? '✗' :
+                 o.status === 'nochange' || o.status === 'baseline' ? '–' : '✓';
+    return `<div class="sync-result ${cls}"><em class="sr-icon">${icon}</em><span class="sr-bucket">${o.label}</span><span>${o.msg}</span></div>`;
+  }).join('');
+}
+
+async function syncNow() {
+  const btn       = document.getElementById('sync-btn');
+  const resultsEl = document.getElementById('sync-results');
+  btn.disabled    = true;
+  btn.textContent = 'Syncing...';
+  resultsEl.style.display = 'flex';
+  resultsEl.innerHTML = '<div class="sr-muted" style="font-size:12px; padding:4px 0;">Triggering Zapier...</div>';
+
+  try {
+    // 1. Trigger Zapier webhook (fire-and-forget)
+    if (CONFIG.zapierWebhookUrl) {
+      await fetch(CONFIG.zapierWebhookUrl, { method: 'POST', mode: 'no-cors' });
+      resultsEl.innerHTML = '<div class="sr-muted" style="font-size:12px; padding:4px 0;">Waiting for sheet to update (~12 s)...</div>';
+      await new Promise(r => setTimeout(r, 12000));
+    } else {
+      resultsEl.innerHTML = '<div class="sr-muted" style="font-size:12px; padding:4px 0;">No Zapier URL configured - reading sheet directly...</div>';
+    }
+
+    // 2. Read destination sheet
+    if (!CONFIG.destinationSheetId) throw new Error('destinationSheetId not set in CONFIG');
+    const sheetRes = await fetch('/.netlify/functions/sheet', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ sheetId: CONFIG.destinationSheetId }),
+    });
+    if (!sheetRes.ok) throw new Error(`Sheet fetch failed: HTTP ${sheetRes.status}`);
+    const { startHours } = parseDestinationSheet(await sheetRes.text());
+
+    // 3. Fetch all Motion tasks + this week's bucket tasks
+    const allTasks    = await fetchAllTasks();
+    const bucketTasks = getThisWeekBucketTasks(allTasks);
+
+    // 4. Load previous sync baseline
+    let lastSync = {};
+    try { lastSync = JSON.parse(localStorage.getItem('lastSyncStartHours') || '{}'); } catch {}
+    const newLast = { ...lastSync };
+
+    // 5. Process each bucket independently
+    const outcomes = [];
+    for (const { key, label, taskName } of BUCKET_INFO) {
+      const currentStartHrs  = startHours[key];
+      const currentStartMins = Math.round(currentStartHrs * 60);
+      const task    = bucketTasks[key];
+      const lastHrs = lastSync[key]; // undefined = first sync ever
+
+      let outcome;
+
+      if (lastHrs === undefined) {
+        // First sync: establish baseline, create task if missing
+        if (!task) {
+          const namedMins = sumNamedTaskMins(key, allTasks);
+          const duration  = Math.max(1, currentStartMins - namedMins);
+          await motionProxy('POST', '/tasks', {
+            name: taskName, workspaceId: CONFIG.workspaceId, duration,
+            dueDate: getThisSunday() + 'T22:59:59.999Z',
+            autoScheduled: { startDate: getToday(), deadlineType: 'SOFT', schedule: 'Anytime (24/7)' },
+          });
+          outcome = { label, status: 'created', msg: `Created with ${fmtHrs(duration)} unallocated` };
+        } else {
+          outcome = { label, status: 'baseline', msg: 'Baseline saved - delta tracking starts next sync' };
+        }
+        newLast[key] = currentStartHrs;
+
+      } else {
+        const deltaMins = currentStartMins - Math.round(lastHrs * 60);
+
+        if (deltaMins === 0) {
+          outcome = { label, status: 'nochange', msg: 'No change' };
+
+        } else if (deltaMins > 0) {
+          // Start Hours increased
+          if (task) {
+            const newDur = task.duration + deltaMins;
+            await motionProxy('PATCH', `/tasks/${task.id}`, { name: task.name, duration: newDur });
+            outcome = { label, status: 'success', msg: `+${fmtHrs(deltaMins)} → ${fmtHrs(newDur)} unallocated` };
+          } else {
+            const duration = Math.max(1, currentStartMins);
+            await motionProxy('POST', '/tasks', {
+              name: taskName, workspaceId: CONFIG.workspaceId, duration,
+              dueDate: getThisSunday() + 'T22:59:59.999Z',
+              autoScheduled: { startDate: getToday(), deadlineType: 'SOFT', schedule: 'Anytime (24/7)' },
+            });
+            outcome = { label, status: 'created', msg: `Task was missing - created with ${fmtHrs(duration)} unallocated` };
+          }
+          newLast[key] = currentStartHrs;
+
+        } else {
+          // Start Hours decreased - validate floor before applying
+          if (!task) {
+            outcome = { label, status: 'blocked', msg: `No ${taskName} found - can't apply ${fmtHrs(Math.abs(deltaMins))} decrease` };
+          } else {
+            const newDur = task.duration + deltaMins; // deltaMins is negative
+            if (newDur < 1) {
+              outcome = {
+                label, status: 'blocked',
+                msg: `Can't absorb ${fmtHrs(Math.abs(deltaMins))} decrease - only ${fmtHrs(task.duration)} unallocated. Increase ${label} Start Hours or reduce the borrow.`,
+              };
+              // Don't update newLast[key]: retry on next sync once fixed
+            } else {
+              await motionProxy('PATCH', `/tasks/${task.id}`, { name: task.name, duration: newDur });
+              outcome = { label, status: 'success', msg: `−${fmtHrs(Math.abs(deltaMins))} → ${fmtHrs(newDur)} unallocated` };
+              newLast[key] = currentStartHrs;
+            }
+          }
+        }
+      }
+
+      outcomes.push(outcome);
+    }
+
+    // 6. Persist new baseline and timestamp
+    localStorage.setItem('lastSyncStartHours', JSON.stringify(newLast));
+    const now     = new Date();
+    const timeStr = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    localStorage.setItem('lastSyncTime', now.toISOString());
+    document.getElementById('sync-timestamp').textContent = `Last synced: today at ${timeStr}`;
+
+    setSyncResults(outcomes);
+    loadBucketData();
+
+  } catch (err) {
+    resultsEl.innerHTML = `<div class="sr-blocked" style="font-size:12px; padding:4px 0;">Sync failed: ${err.message}</div>`;
+    console.error('syncNow error:', err);
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'Sync now';
+  }
+}
+
+// ─── Init ─────────────────────────────────────────────────────────────────────
 window.addEventListener('DOMContentLoaded', async () => {
+  const lastSyncTime = localStorage.getItem('lastSyncTime');
+  if (lastSyncTime) {
+    const d       = new Date(lastSyncTime);
+    const timeStr = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    const today   = new Date();
+    const label   = d.toDateString() === today.toDateString() ? `today at ${timeStr}` : d.toLocaleDateString();
+    document.getElementById('sync-timestamp').textContent = `Last synced: ${label}`;
+  }
+
   const saved = localStorage.getItem('motionApiKey');
   if (!saved) return;
   document.getElementById('keyEntry').style.display = 'none';
   document.getElementById('keySaved').style.display = 'flex';
-  // Re-verify saved key and populate account name
   try {
     const me = await motionProxy('GET', '/users/me');
-    document.getElementById('keyLabel').textContent = `Connected as ${me.name} · Motion key saved on this device.`;
+    document.getElementById('keyLabel').textContent = `Connected as ${me.name} - Motion key saved on this device.`;
+    loadBucketData();
   } catch {
-    // Key may be stale — show neutral label, let user clear and re-enter if needed
+    // Stale key - neutral label, user can clear and re-enter
   }
 });
 </script>
