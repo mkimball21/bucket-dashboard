@@ -4,81 +4,325 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Bucket hours dashboard</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/2.44.0/iconfont/tabler-icons.min.css">
 <style>
-  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 480px; margin: 24px auto; padding: 0 16px; color: #1a1a1a; background: #fafaf8; }
-  h1 { font-size: 20px; font-weight: 500; margin-bottom: 4px; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; max-width: 480px; margin: 24px auto; padding: 0 16px 60px; color: #1a1a1a; background: #fafaf8; }
+  h1 { font-size: 20px; font-weight: 500; margin: 0 0 4px; }
+  h2 { font-size: 14px; font-weight: 500; margin: 0 0 10px; color: #44433f; }
   .subtitle { color: #6b6a64; font-size: 13px; margin-bottom: 20px; }
-  input[type=password] { width: 100%; padding: 10px 12px; font-size: 14px; margin-bottom: 8px; box-sizing: border-box; border: 1px solid #d8d6cd; border-radius: 8px; }
-  button { padding: 8px 14px; font-size: 13px; cursor: pointer; border: 1px solid #1a1a1a; border-radius: 8px; background: #1a1a1a; color: white; }
-  button.secondary { background: white; color: #1a1a1a; }
-  .key-row { display: flex; gap: 8px; margin-bottom: 20px; align-items: center; }
-  .key-status { font-size: 13px; color: #6b6a64; }
-  .bucket-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 12px; }
-  .bucket-card { background: white; border: 1px solid #e5e3d8; border-radius: 12px; padding: 12px; }
-  .bucket-name { font-size: 12px; color: #6b6a64; margin-bottom: 8px; font-weight: 500; }
-  .bucket-stat .label { font-size: 11px; color: #8a8980; }
-  .bucket-stat .value { font-size: 18px; font-weight: 500; }
-  .freetime-card { background: white; border: 1px solid #e5e3d8; border-radius: 12px; padding: 14px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+  input, select { width: 100%; padding: 9px 10px; font-size: 13px; box-sizing: border-box; border: 1px solid #d8d6cd; border-radius: 8px; background: white; }
+  button { padding: 9px 14px; font-size: 13px; cursor: pointer; border: 1px solid #1a1a1a; border-radius: 8px; background: #1a1a1a; color: white; }
+  button.secondary { background: white; color: #1a1a1a; border: 1px solid #d8d6cd; }
+  button.full { width: 100%; }
+  button.icon-btn { background: transparent; border: none; color: #b5604f; padding: 4px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+  .key-row { display: flex; gap: 8px; margin-bottom: 4px; align-items: center; }
+  .key-status { display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #8a8980; margin-bottom: 20px; }
+  .key-error { font-size: 12px; color: #b5604f; margin-top: 6px; }
+  .section { margin-bottom: 22px; }
+  .bucket-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .bucket-card { background: white; border: 1px solid #e5e3d8; border-radius: 12px; padding: 12px 10px; }
+  .bucket-name { font-size: 12px; color: #6b6a64; margin-bottom: 10px; font-weight: 500; }
+  .bucket-stat .label { font-size: 10px; color: #8a8980; text-transform: uppercase; letter-spacing: 0.02em; }
+  .bucket-stat .value { font-size: 17px; font-weight: 500; margin-top: 1px; }
+  .bucket-stat .value.small { font-size: 12px; font-weight: 400; color: #6b6a64; margin-top: 0; }
+  .progress-track { height: 5px; background: #f0eee5; border-radius: 3px; margin-top: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; background: #b5604f; border-radius: 3px; }
+  .freetime-card { background: white; border: 1px solid #e5e3d8; border-radius: 12px; padding: 14px; display: flex; justify-content: space-between; align-items: center; }
+  .freetime-card .label { font-size: 13px; color: #6b6a64; }
   .freetime-card .value { font-size: 20px; font-weight: 500; }
-  .placeholder-note { font-size: 12px; color: #b5604f; background: #fbeae6; border-radius: 8px; padding: 10px 12px; margin-top: 16px; }
+  .form-card { background: white; border: 1px solid #e5e3d8; border-radius: 12px; padding: 14px; }
+  .form-row { margin-bottom: 10px; }
+  .form-row label { display: block; font-size: 12px; color: #6b6a64; margin-bottom: 4px; }
+  .form-row-split { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .task-cards { display: flex; flex-direction: column; gap: 10px; }
+  .task-card { background: var(--surface-1, #f5f4ee); border: 1px solid #e5e3d8; border-radius: 10px; padding: 10px; position: relative; }
+  .task-card .name-row { display: flex; gap: 6px; margin-bottom: 8px; }
+  .task-card .name-row input { font-size: 14px; font-weight: 500; }
+  .task-card .field-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .task-card .field-grid.three { grid-template-columns: 1fr 1fr 1fr; }
+  .task-card .field { display: flex; flex-direction: column; gap: 3px; }
+  .task-card .field label { font-size: 10px; color: #8a8980; text-transform: uppercase; letter-spacing: 0.02em; }
+  .task-card .field input, .task-card .field select { font-size: 13px; padding: 7px 8px; }
+  .task-card .remove-btn { background: transparent; border: none; color: #b5604f; padding: 4px; width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0; }
+  .sync-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid #e5e3d8; border-radius: 12px; padding: 12px 14px; }
+  .sync-row .label { font-size: 13px; }
+  .sync-row .timestamp { font-size: 11px; color: #8a8980; margin-top: 2px; }
+  .placeholder-note { font-size: 12px; color: #b5604f; background: #fbeae6; border-radius: 8px; padding: 10px 12px; }
+  .task-list { display: flex; flex-direction: column; gap: 6px; }
+  .task-row { display: flex; justify-content: space-between; align-items: center; background: white; border: 1px solid #e5e3d8; border-radius: 8px; padding: 8px 12px; font-size: 13px; }
+  .task-row .meta { font-size: 11px; color: #8a8980; }
+  .badge { font-size: 10px; padding: 2px 7px; border-radius: 10px; font-weight: 500; }
+  .badge.rwta { background: #eeedfe; color: #3c3489; }
+  .badge.work { background: #e6f1fb; color: #0c447c; }
+  .badge.pf { background: #e1f5ee; color: #085041; }
+  .badge.none { background: #f1efe8; color: #444441; }
 </style>
 </head>
 <body>
   <h1>Bucket hours dashboard</h1>
   <p class="subtitle">Work, personal finance, and RWTA hours for this week.</p>
 
-  <div id="keyEntry">
+  <div id="keyEntry" class="section">
     <div class="key-row">
       <input type="password" id="apiKey" placeholder="Paste your Motion API key">
-      <button onclick="saveKey()">Save</button>
+      <button id="saveBtn" onclick="saveKey()">Save</button>
     </div>
+    <div id="keyError" class="key-error" style="display:none;"></div>
   </div>
-  <div id="keySaved" style="display:none;" class="key-row">
-    <span class="key-status">Motion key saved on this device.</span>
+  <div id="keySaved" class="key-status" style="display:none;">
+    <span id="keyLabel">Motion key saved on this device.</span>
     <button class="secondary" onclick="clearKey()">Clear</button>
   </div>
 
-  <div class="bucket-grid">
-    <div class="bucket-card">
-      <div class="bucket-name">Work</div>
-      <div class="bucket-stat"><div class="label">Unallocated</div><div class="value">2.0 hrs</div></div>
-    </div>
-    <div class="bucket-card">
-      <div class="bucket-name">Personal finance</div>
-      <div class="bucket-stat"><div class="label">Unallocated</div><div class="value">12.0 hrs</div></div>
-    </div>
-    <div class="bucket-card">
-      <div class="bucket-name">RWTA</div>
-      <div class="bucket-stat"><div class="label">Unallocated</div><div class="value">15.5 hrs</div></div>
+  <div class="section">
+    <h2>This week</h2>
+    <div class="bucket-grid">
+      <div class="bucket-card">
+        <div class="bucket-name">Work</div>
+        <div class="bucket-stat"><div class="label">Unallocated</div><div class="value">1.5 hrs</div></div>
+        <div class="bucket-stat" style="margin-top:8px;"><div class="label">Worked</div><div class="value small">8.0 of 10 hrs</div></div>
+        <div class="progress-track"><div class="progress-fill" style="width:80%; background:#0c447c;"></div></div>
+      </div>
+      <div class="bucket-card">
+        <div class="bucket-name">Personal finance</div>
+        <div class="bucket-stat"><div class="label">Unallocated</div><div class="value">9.5 hrs</div></div>
+        <div class="bucket-stat" style="margin-top:8px;"><div class="label">Worked</div><div class="value small">3.0 of 15 hrs</div></div>
+        <div class="progress-track"><div class="progress-fill" style="width:20%; background:#085041;"></div></div>
+      </div>
+      <div class="bucket-card">
+        <div class="bucket-name">RWTA</div>
+        <div class="bucket-stat"><div class="label">Unallocated</div><div class="value">13.25 hrs</div></div>
+        <div class="bucket-stat" style="margin-top:8px;"><div class="label">Worked</div><div class="value small">9.5 of 25 hrs</div></div>
+        <div class="progress-track"><div class="progress-fill" style="width:38%; background:#3c3489;"></div></div>
+      </div>
     </div>
   </div>
 
-  <div class="freetime-card">
-    <span style="font-size:13px; color:#6b6a64;">Free time this week</span>
-    <span class="value">4.8 hrs</span>
+  <div class="section" style="display:flex; flex-direction:column; gap:10px;">
+    <div class="freetime-card">
+      <span class="label">Total worked this week</span>
+      <span class="value">20.5 hrs</span>
+    </div>
+    <div class="freetime-card">
+      <span class="label">Total unallocated</span>
+      <span class="value">24.25 hrs</span>
+    </div>
+    <div class="freetime-card">
+      <span class="label">Free time this week</span>
+      <span class="value">4.8 hrs</span>
+    </div>
   </div>
 
-  <p class="placeholder-note">This is a placeholder with fake numbers, just to test hosting and key storage. Real Motion data isn't wired up yet.</p>
+  <div class="section">
+    <h2>Add tasks</h2>
+    <div class="form-card">
+      <p style="font-size:12px; color:#6b6a64; margin:0 0 8px;">Ask Claude to draft your task list, then paste it here. One task per line: name, minutes, bucket, priority.</p>
+      <textarea id="bulkPaste" rows="4" placeholder="lucas f/up email, 30, RWTA, Medium
+send invoice, 10, Work, Low" style="width:100%; padding:9px 10px; font-size:13px; box-sizing:border-box; border:1px solid #d8d6cd; border-radius:8px; font-family: ui-monospace, monospace; resize:vertical;"></textarea>
+      <button class="full" style="margin-top:10px;" onclick="parseToRows()">Parse into rows</button>
+      <div id="parseError" style="display:none; font-size:12px; color:#b5604f; margin-top:8px;"></div>
+
+      <div id="editRows" style="display:none; margin-top:16px;">
+        <div class="task-cards" id="bulkTable"></div>
+        <button class="full" style="margin-top:10px;" onclick="submitRows()">Add all to Motion</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Added today</h2>
+    <div class="task-list" id="taskList">
+      <div class="task-row">
+        <span>lucas f/up email</span>
+        <span><span class="badge rwta">RWTA</span> <span class="meta">30 min</span></span>
+      </div>
+      <div class="task-row">
+        <span>send invoice</span>
+        <span><span class="badge work">Work</span> <span class="meta">10 min</span></span>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>Hours planner sync</h2>
+    <div class="sync-row">
+      <div>
+        <div class="label">Pull this week's grouped hours</div>
+        <div class="timestamp">Last synced: today at 9:14 AM</div>
+      </div>
+      <button class="secondary" onclick="syncMock()">Sync now</button>
+    </div>
+  </div>
+
+  <p class="placeholder-note">This is a visual mockup with fake numbers. No live Motion or Zapier calls are wired up yet.</p>
 
 <script>
-function saveKey() {
+// --- Proxy helper ---
+// All Motion API calls go through /.netlify/functions/motion to avoid CORS.
+// The API key is read from localStorage and sent per-request (never embedded in source).
+async function motionProxy(method, path, body) {
+  const apiKey = localStorage.getItem('motionApiKey');
+  if (!apiKey) throw new Error('No Motion API key saved');
+  const res = await fetch('/.netlify/functions/motion', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ apiKey, method, path, body }),
+  });
+  const data = res.status === 204 ? null : await res.json();
+  if (!res.ok) throw Object.assign(new Error(data?.error || `HTTP ${res.status}`), { status: res.status, data });
+  return data;
+}
+
+// --- API key entry ---
+async function saveKey() {
   const key = document.getElementById('apiKey').value.trim();
   if (!key) return;
-  localStorage.setItem('motionApiKey', key);
-  document.getElementById('keyEntry').style.display = 'none';
-  document.getElementById('keySaved').style.display = 'flex';
+  const errEl = document.getElementById('keyError');
+  const btn = document.getElementById('saveBtn');
+  errEl.style.display = 'none';
+  btn.disabled = true;
+  btn.textContent = 'Checking…';
+
+  // Verify the key works before persisting it
+  try {
+    localStorage.setItem('motionApiKey', key);
+    const me = await motionProxy('GET', '/users/me');
+    document.getElementById('keyLabel').textContent = `Connected as ${me.name} · Motion key saved on this device.`;
+    document.getElementById('keyEntry').style.display = 'none';
+    document.getElementById('keySaved').style.display = 'flex';
+  } catch (err) {
+    localStorage.removeItem('motionApiKey');
+    errEl.textContent = err.status === 401
+      ? 'Key rejected by Motion (401) — double-check and try again.'
+      : `Could not verify key: ${err.message}`;
+    errEl.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Save';
+  }
 }
+
 function clearKey() {
   localStorage.removeItem('motionApiKey');
   document.getElementById('apiKey').value = '';
+  document.getElementById('keyLabel').textContent = 'Motion key saved on this device.';
+  document.getElementById('keyError').style.display = 'none';
   document.getElementById('keyEntry').style.display = 'block';
   document.getElementById('keySaved').style.display = 'none';
 }
-window.addEventListener('DOMContentLoaded', () => {
+function getThisSunday() {
+  const d = new Date();
+  const day = d.getDay();
+  const diff = day === 0 ? 0 : 7 - day;
+  const sunday = new Date(d);
+  sunday.setDate(d.getDate() + diff);
+  return sunday.toISOString().slice(0, 10);
+}
+function getToday() {
+  return new Date().toISOString().slice(0, 10);
+}
+function parseToRows() {
+  const raw = document.getElementById('bulkPaste').value;
+  const errorEl = document.getElementById('parseError');
+  errorEl.style.display = 'none';
+  const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
+  if (lines.length === 0) return;
+
+  const table = document.getElementById('bulkTable');
+  table.innerHTML = '';
+  const skipped = [];
+  const todayStr = getToday();
+  const sundayStr = getThisSunday();
+
+  lines.forEach(line => {
+    const parts = line.split(',').map(p => p.trim());
+    if (parts.length < 3) { skipped.push(line); return; }
+    const [name, minutes, bucket, priority] = parts;
+    const bucketLower = bucket.toLowerCase();
+    let bucketNorm;
+    if (bucketLower.startsWith('work')) bucketNorm = 'Work';
+    else if (bucketLower.startsWith('pf') || bucketLower.includes('personal finance')) bucketNorm = 'PF';
+    else if (bucketLower.startsWith('rwta')) bucketNorm = 'RWTA';
+    else if (bucketLower.startsWith('none') || bucketLower === 'personal' || bucketLower === '') bucketNorm = 'None';
+    else { skipped.push(line + '  (unrecognized bucket "' + bucket + '" \u2014 use Work, PF, RWTA, or None)'); return; }
+    const priorityNorm = priority ? priority.trim() : 'Medium';
+
+    const card = document.createElement('div');
+    card.className = 'task-card';
+    card.innerHTML =
+      '<div class="name-row">' +
+        '<input type="text" value="' + name + '" style="flex:1;">' +
+        '<button class="remove-btn" onclick="this.closest(\'.task-card\').remove()" aria-label="Remove task"><i class="ti ti-x" aria-hidden="true"></i></button>' +
+      '</div>' +
+      '<div class="field-grid three" style="margin-bottom:8px;">' +
+        '<div class="field"><label>Minutes</label><input type="number" value="' + (minutes || 30) + '"></div>' +
+        '<div class="field"><label>Bucket</label><select>' +
+          '<option' + (bucketNorm === 'Work' ? ' selected' : '') + '>Work</option>' +
+          '<option' + (bucketNorm === 'RWTA' ? ' selected' : '') + '>RWTA</option>' +
+          '<option' + (bucketNorm === 'PF' ? ' selected' : '') + '>PF</option>' +
+          '<option' + (bucketNorm === 'None' ? ' selected' : '') + '>None</option>' +
+        '</select></div>' +
+        '<div class="field"><label>Priority</label><select>' +
+          '<option' + (priorityNorm === 'Low' ? ' selected' : '') + '>Low</option>' +
+          '<option' + (priorityNorm === 'Medium' ? ' selected' : '') + '>Medium</option>' +
+          '<option' + (priorityNorm === 'High' ? ' selected' : '') + '>High</option>' +
+          '<option' + (priorityNorm === 'ASAP' ? ' selected' : '') + '>ASAP</option>' +
+        '</select></div>' +
+      '</div>' +
+      '<div class="field-grid three">' +
+        '<div class="field"><label>Start</label><input type="date" value="' + todayStr + '"></div>' +
+        '<div class="field"><label>Due</label><input type="date" value="' + sundayStr + '"></div>' +
+        '<div class="field"><label>Schedule</label><select>' +
+          '<option selected>Anytime (24/7)</option>' +
+          '<option>Work hours</option>' +
+          '<option>Day</option>' +
+          '<option>Night</option>' +
+        '</select></div>' +
+      '</div>';
+    table.appendChild(card);
+  });
+
+  if (skipped.length > 0) {
+    errorEl.style.display = 'block';
+    errorEl.textContent = 'Skipped ' + skipped.length + ' line(s) missing required fields (need at least name, minutes, bucket): ' + skipped.join(' / ');
+  }
+  if (table.children.length > 0) {
+    document.getElementById('editRows').style.display = 'block';
+  }
+}
+function submitRows() {
+  const cards = document.querySelectorAll('#bulkTable .task-card');
+  const list = document.getElementById('taskList');
+  cards.forEach(card => {
+    const name = card.querySelector('.name-row input').value.trim();
+    const fields = card.querySelectorAll('.field-grid.three')[0];
+    const minutes = fields.querySelectorAll('input')[0].value;
+    const bucket = fields.querySelectorAll('select')[0].value;
+    if (!name) return;
+    const badgeClass = bucket === 'Work' ? 'work' : bucket === 'PF' ? 'pf' : bucket === 'None' ? 'none' : 'rwta';
+    const taskRow = document.createElement('div');
+    taskRow.className = 'task-row';
+    taskRow.innerHTML = '<span>' + name + '</span><span><span class="badge ' + badgeClass + '">' + bucket + '</span> <span class="meta">' + minutes + ' min</span></span>';
+    list.prepend(taskRow);
+  });
+  document.getElementById('bulkPaste').value = '';
+  document.getElementById('bulkTable').innerHTML = '';
+  document.getElementById('editRows').style.display = 'none';
+}
+function syncMock() {
+  alert('This would trigger the Zapier sync once wired up.');
+}
+window.addEventListener('DOMContentLoaded', async () => {
   const saved = localStorage.getItem('motionApiKey');
-  if (saved) {
-    document.getElementById('keyEntry').style.display = 'none';
-    document.getElementById('keySaved').style.display = 'flex';
+  if (!saved) return;
+  document.getElementById('keyEntry').style.display = 'none';
+  document.getElementById('keySaved').style.display = 'flex';
+  // Re-verify saved key and populate account name
+  try {
+    const me = await motionProxy('GET', '/users/me');
+    document.getElementById('keyLabel').textContent = `Connected as ${me.name} · Motion key saved on this device.`;
+  } catch {
+    // Key may be stale — show neutral label, let user clear and re-enter if needed
   }
 });
 </script>
